@@ -9,9 +9,7 @@ This source code repository contains JUnit 5 and Mockito test examples with Mave
 * Should use Java 11 or higher. Previous versions of Java are un-tested.
 * Use Maven 3.5.2 or higher
 
-## Support
-For questions and help:
-* Please post in course
-* Or post in the Slack Community exclusive to the course.
+#### Mock can be created using two ways - 
 
-GitHub Issues will not be addressed.
+1. Creating Mockito Mocks Inline mock(Map.class)
+2. 
