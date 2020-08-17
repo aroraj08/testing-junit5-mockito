@@ -5,9 +5,14 @@ import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -23,6 +28,9 @@ class OwnerControllerTest {
 
     @Mock
     BindingResult bindingResult;
+
+    @Captor
+    ArgumentCaptor<String> stringArgumentCaptor;
 
     @Test
     void processCreationFormBindingError() {
@@ -49,6 +57,18 @@ class OwnerControllerTest {
 
         String returnedView = ownerController.processCreationForm(owner, bindingResult);
         assertEquals("redirect:/owners/5", returnedView);
+    }
+
+    @Test
+    void processFindFormWildcardString() {
+
+        Owner owner = new Owner(1l, "Jatin", "Arora");
+        List<Owner> results = new ArrayList<>();
+        when(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture()))
+                .thenReturn(results);
+
+        ownerController.processFindForm(owner, bindingResult, null);
+        assertEquals("%Arora%", stringArgumentCaptor.getValue());
     }
 
 }
