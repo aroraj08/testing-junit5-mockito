@@ -1,8 +1,10 @@
 package guru.springframework.sfgpetclinic.controllers;
 
 import guru.springframework.sfgpetclinic.fauxspring.BindingResult;
+import guru.springframework.sfgpetclinic.fauxspring.Model;
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +33,31 @@ class OwnerControllerTest {
 
     @Captor
     ArgumentCaptor<String> stringArgumentCaptor;
+
+    @BeforeEach
+    void beforeEach() {
+        lenient().when(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture()))
+                .thenAnswer(invocationOnMock -> {
+
+                    List<Owner> results = new ArrayList<>();
+
+                    String name = invocationOnMock.getArgument(0);
+                    if ("%Arora%".equalsIgnoreCase(name)) {
+                        // return results with one element in it
+                        results.add(new Owner(1l, "Jatin", "Arora"));
+                        return results;
+                    } else if ("%Aurora%".equalsIgnoreCase(name)) {
+                        return results;
+                    } else if ("%Miglani%".equalsIgnoreCase(name)) {
+                        results.add(new Owner(1l, "Preeti", "Miglani"));
+                        results.add(new Owner(2l, "Manish", "Miglani"));
+                        results.add(new Owner(3l, "Rohan", "Miglani"));
+                        return results;
+                    }
+
+                    throw new RuntimeException("Invalid Argument");
+                });
+    }
 
     @Test
     void processCreationFormBindingError() {
@@ -64,11 +91,37 @@ class OwnerControllerTest {
 
         Owner owner = new Owner(1l, "Jatin", "Arora");
         List<Owner> results = new ArrayList<>();
-        when(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture()))
-                .thenReturn(results);
+        //when(ownerService.findAllByLastNameLike(stringArgumentCaptor.capture()))
+          //      .thenReturn(results);
 
         ownerController.processFindForm(owner, bindingResult, null);
         assertEquals("%Arora%", stringArgumentCaptor.getValue());
     }
 
+    @Test
+    void processFindFormWithOneResult() {
+
+        Owner owner = new Owner(1l, "Jatin", "Arora");
+
+        String result = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        assertEquals("redirect:/owners/1", result);
+    }
+
+    @Test
+    void processFindFormWithNoResult() {
+
+        Owner owner = new Owner(1l, "Jatin", "Aurora");
+
+        String result = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        assertEquals("owners/findOwners", result);
+    }
+
+    @Test
+    void processFindFormWithManyResult() {
+
+        Owner owner = new Owner(2l, "Preeti", "Miglani");
+
+        String result = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        assertEquals("owners/ownersList", result);
+    }
 }
