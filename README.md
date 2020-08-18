@@ -12,4 +12,11 @@ This source code repository contains JUnit 5 and Mockito test examples with Mave
 #### Mock can be created using two ways - 
 
 1. Creating Mockito Mocks Inline mock(Map.class)
-2. 
+2. Using @Mock annotation. 
+
+Note that the class whose method has to be invoked with Mock object needs to be injected 
+in the Test class with @InjectMocks annotation
+
+#### Verify zero or more interactions with Mock 
+1. verifyNoMoreInteractions(mockObject)
+2. verifyZeroInteractions(mockObject)

@@ -7,10 +7,7 @@ import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -33,6 +30,9 @@ class OwnerControllerTest {
 
     @Captor
     ArgumentCaptor<String> stringArgumentCaptor;
+
+    @Mock
+    Model model;
 
     @BeforeEach
     void beforeEach() {
@@ -103,7 +103,7 @@ class OwnerControllerTest {
 
         Owner owner = new Owner(1l, "Jatin", "Arora");
 
-        String result = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        String result = ownerController.processFindForm(owner, bindingResult, model);
         assertEquals("redirect:/owners/1", result);
     }
 
@@ -112,7 +112,7 @@ class OwnerControllerTest {
 
         Owner owner = new Owner(1l, "Jatin", "Aurora");
 
-        String result = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        String result = ownerController.processFindForm(owner, bindingResult, model);
         assertEquals("owners/findOwners", result);
     }
 
@@ -120,8 +120,13 @@ class OwnerControllerTest {
     void processFindFormWithManyResult() {
 
         Owner owner = new Owner(2l, "Preeti", "Miglani");
+        InOrder inorder = inOrder(ownerService, model);
 
-        String result = ownerController.processFindForm(owner, bindingResult, mock(Model.class));
+        String result = ownerController.processFindForm(owner, bindingResult, model);
         assertEquals("owners/ownersList", result);
+
+        // verify order in which mock is called
+        inorder.verify(ownerService).findAllByLastNameLike(anyString());
+        inorder.verify(model).addAttribute(anyString(), anyList());
     }
 }
